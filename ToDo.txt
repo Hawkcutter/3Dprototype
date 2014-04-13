@@ -1,0 +1,22 @@
+First-Person Sicht,
+
+Laufen,Rennen, Springen ---> Bewegung und Gravity
+
+Andere Texturen fürs Level oder VertexPositionColor
+
+Level ---> KastenForm, Aufbau aus .bmp, besteht aus Blöcken, verschiedene Höhen, Zielpunkt, Umrahmt von Mauer
+
+1.Milestone
+
+
+Level ---> Schalter, Fallgruben, Tod durch die Welt fallen, Tod durch Falldamage, Punkte/Zeit, gegenstände die das Erhöhen
+
+Gegebenenfalls Leben und Lebensanzeige
+
+Tod: "Sie sind gestorben" Taste drücken für neustart, auf Startpunkt zurücksetzen
+
+extra
+
+Menü
+
+mehrere Levels
