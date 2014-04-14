@@ -9,19 +9,20 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-namespace _3DPrototyp
-{
-    /// <summary>
-    /// This is the main type for your game
-    /// </summary>
+
+
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        public static GraphicsDeviceManager graphics;
+        public static SpriteBatch spriteBatch;
+        public static GameTime gameTime;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+
+            this.Window.Title = "3D Prototype";
+
             Content.RootDirectory = "Content";
         }
 
@@ -67,7 +68,11 @@ namespace _3DPrototyp
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+
+            Input.prevKeyboard = Input.currentKeyboard;
+            Input.currentKeyboard = Keyboard.GetState();
+
+            if (Input.isClicked(Keys.Escape))
                 this.Exit();
 
             // TODO: Add your update logic here
@@ -88,4 +93,4 @@ namespace _3DPrototyp
             base.Draw(gameTime);
         }
     }
-}
+
