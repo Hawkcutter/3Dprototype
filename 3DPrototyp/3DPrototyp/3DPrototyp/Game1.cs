@@ -28,6 +28,9 @@ public class Game1 : Microsoft.Xna.Framework.Game
     Matrix projectionMatrix;
     int[,] floorPlan;
 
+    //Muss später geändert werden
+    float rotation;
+
     public Game1()
     {
         graphics = new GraphicsDeviceManager(this);
@@ -63,6 +66,8 @@ public class Game1 : Microsoft.Xna.Framework.Game
         spriteBatch = new SpriteBatch(GraphicsDevice);
 
         mapTexture = Content.Load<Texture2D>("TextureFile");
+
+        rotation = 0.5f;
 
         device = graphics.GraphicsDevice;
         SetUpCamera();
@@ -114,14 +119,14 @@ public class Game1 : Microsoft.Xna.Framework.Game
         //int differentBuildings = buildingHeights.Length - 1;
         float imagesInTexture = 1;              //braucht änderung, momentan keine Textur vorhanden
 
-        int cityWidth = floorPlan.GetLength(0);
-        int cityLength = floorPlan.GetLength(1);
+        int mapWidth = floorPlan.GetLength(0);
+        int mapLength = floorPlan.GetLength(1);
 
 
         List<VertexPositionNormalTexture> verticesList = new List<VertexPositionNormalTexture>();
-        for (int x = 0; x < cityWidth; x++)
+        for (int x = 0; x < mapWidth; x++)
         {
-            for (int z = 0; z < cityLength; z++)
+            for (int z = 0; z < mapLength; z++)
             {
                 int currentbuilding = floorPlan[x, z];
 
@@ -139,6 +144,8 @@ public class Game1 : Microsoft.Xna.Framework.Game
 
                 if (currentbuilding != 0)
                 {
+                    //ineffektiv, da auch wände zwischen objekten gezeichnet werden
+
                     //front wall
                     verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
                     verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
@@ -203,9 +210,15 @@ public class Game1 : Microsoft.Xna.Framework.Game
 
         Input.prevKeyboard = Input.currentKeyboard;
         Input.currentKeyboard = Keyboard.GetState();
-
+        
         if (Input.isClicked(Keys.Escape))
             this.Exit();
+
+        //Rotieren um die Y-Achse, zum testen, sollte später geändert werden
+        if (Input.isPressed(Keys.Right))
+            rotation++;
+        if (Input.isPressed(Keys.Left))
+            rotation--;
 
         // TODO: Add your update logic here
 
@@ -218,7 +231,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
     /// <param name="gameTime">Provides a snapshot of timing values.</param>
     protected override void Draw(GameTime gameTime)
     {
-        graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+        graphics.GraphicsDevice.Clear(Color.Black);
 
         // TODO: Add your drawing code here
         DrawMap();
@@ -230,7 +243,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
     {
         //Klappt das auch in Basic Effects?
         effect.TextureEnabled = true;
-        effect.View = viewMatrix;
+        effect.View = viewMatrix * Matrix.CreateRotationY(rotation);  //Keine Ahnung ob das geht
         effect.Projection = projectionMatrix;
         effect.Texture = mapTexture;
         effect.World = Matrix.Identity;
