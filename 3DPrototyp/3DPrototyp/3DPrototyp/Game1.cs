@@ -25,10 +25,10 @@ namespace _3DPrototyp
         BasicEffect effect;
 
         Texture2D mapTexture;
-
-        int[,] floorPlan;
+        Model model;
 
         Camera camera;
+        Map map;
 
 
         public Game1()
@@ -54,6 +54,7 @@ namespace _3DPrototyp
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();
 
+
             effect = new BasicEffect(GraphicsDevice);
 
             base.Initialize();
@@ -69,133 +70,27 @@ namespace _3DPrototyp
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             mapTexture = Content.Load<Texture2D>("texturemap");
+            model = LoadModel("xwing");
+
             device = graphics.GraphicsDevice;
-            camera = new Camera(new Vector3(2, 4, -6), 0.05f, 0.005f, device);
-            LoadFloorPlan();        // Durch einlesen von einen Bild ersetzen
-            SetUpVertices();        // Braucht noch Texturen
+
+            camera = new Camera(new Vector3(2, 4, -6), 0.05f, 0.005f, device); // Camera((X,Y,Z),moveSpeed,rotationSpeed,GraphicsDevice)
+            map = new Map();
+            map.LoadFloorPlan();        // Durch einlesen von einen Bild ersetzen
+            mapVertexBuffer = map.SetUpVertices(device);     // Braucht noch Texturen
 
             // TODO: use this.Content to load your game content here
         }
-        //Laden der Map
-        private void LoadFloorPlan()
+        private Model LoadModel(string assetName)
         {
-            floorPlan = new int[,]
-             {
-                 {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,1,1,0,0,0,1,1,0,0,1,0,2},
-                 {2,0,0,1,1,0,0,0,1,0,0,0,1,0,2},
-                 {2,0,0,0,1,1,0,1,1,0,0,0,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,1,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,1,1,0,0,0,1,0,0,0,0,0,0,2},
-                 {2,0,1,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,1,0,0,0,0,0,0,0,0,2},
-                 {2,0,0,0,0,1,0,0,0,1,0,0,0,0,2},
-                 {2,0,1,0,0,0,0,0,0,1,0,0,0,0,2},
-                 {2,0,1,1,0,0,0,0,1,1,0,0,0,1,2},
-                 {2,0,0,0,0,0,0,0,1,1,0,0,0,1,2},
-                 {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
-             };
 
+            Model newModel = Content.Load<Model>(assetName); 
+            foreach (ModelMesh mesh in newModel.Meshes)
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                    meshPart.Effect = effect.Clone();
+            return newModel;
         }
 
-        //Erstellen der Vertices aus der Map, braucht Texturen!
-        private void SetUpVertices()
-        {
-            float imagesInTexture = 1 + 10;              //Ändern wen andere Textur gewählt wird, "+ Zahl" ist die Anzahl der Texturen -1
-
-            int mapWidth = floorPlan.GetLength(0);
-            int mapLength = floorPlan.GetLength(1);
-
-
-            List<VertexPositionNormalTexture> verticesList = new List<VertexPositionNormalTexture>();
-            for (int x = 0; x < mapWidth; x++)
-            {
-                for (int z = 0; z < mapLength; z++)
-                {
-                    int currentbuilding = 1;  //geändert das erstmal nur 2 Texturen (Boden und Wand) gezeichnet werden
-                    //int currentbuilding = floorPlan[x, z];
-
-                    //Ein Dreieck besteht je aus 3 Vertices
-                    //1. Vector3(Position) 2. Vector3(Normal) für das Licht 3. Vector2(Textur position)
-                    
-                    //Momentan werden Wände zwischen zwei Blöcken gezeichnet                --> Wenn Zeit das optimieren
-                    //Momentan wird die Textur nur gestreckt                                --> Wenn Zeit mehrer Blöcke generieren staht einen zu strecken
-                    //Momentan können nur Blöcke mit verschiedenen höhen generiert werden   --> Wenn Zeit schwebende Platformen
-
-                    //floor or ceiling
-
-                    /*
-                     * Auskommentiert da bei currentbuilding = 1 andere Textur gezeichnet würde
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z), new Vector3(0, 1, 0), new Vector2(currentbuilding * 2 / imagesInTexture, 1)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 1)));
-
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 0)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 1)));
-                    */
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z), new Vector3(0, 1, 0), new Vector2(0, 1)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(0, 1, 0), new Vector2(0, 0)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z), new Vector3(0, 1, 0), new Vector2(1/imagesInTexture, 1)));
-
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(0, 1, 0), new Vector2(0, 0)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z - 1), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 0)));
-                    verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 1)));
-
-
-                    if (currentbuilding != 0)
-                    {
-
-                        //front wall
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
-
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-
-                        //back wall
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-
-                        //left wall
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, floorPlan[x, z], -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-
-                        //right wall
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
-
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                    }
-                }
-            }
-
-            mapVertexBuffer = new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration, verticesList.Count, BufferUsage.WriteOnly);
-
-            mapVertexBuffer.SetData<VertexPositionNormalTexture>(verticesList.ToArray());
-        }
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -237,24 +132,18 @@ namespace _3DPrototyp
 
             // TODO: Add your drawing code here
             DrawMap();
+            DrawModel();
             base.Draw(gameTime);
         }
 
         //Zeichnen der Map, abändern in BasicEffects
         private void DrawMap()
         {
-            //Klappt das auch in Basic Effects?
             effect.TextureEnabled = true;
-            //effect.EnableDefaultLighting();
             effect.View = camera.viewMatrix;
             effect.Projection = camera.projectionMatrix;
             effect.Texture = mapTexture;
             effect.World = Matrix.Identity;
-            //effect.CurrentTechnique = effect.Techniques["Textured"];
-            //effect.Parameters["xWorld"].SetValue(Matrix.Identity);
-            //effect.Parameters["xView"].SetValue(viewMatrix);
-            //effect.Parameters["xProjection"].SetValue(projectionMatrix);
-            //effect.Parameters["xTexture"].SetValue(mapTexture);
 
             //Das muss nicht geändert werden!
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
@@ -263,7 +152,29 @@ namespace _3DPrototyp
                 device.SetVertexBuffer(mapVertexBuffer);
                 device.DrawPrimitives(PrimitiveType.TriangleList, 0, mapVertexBuffer.VertexCount / 3);
             }
+
+
         }
+        private void DrawModel()
+        {
+            Matrix worldMatrix = Matrix.CreateScale(0.005f, 0.005f, 0.005f) * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(new Vector3(2, 3, -5));
+
+            Matrix[] modelTransforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(modelTransforms);
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (BasicEffect currentEffect in mesh.Effects)
+                {
+                    currentEffect.EnableDefaultLighting();
+                    currentEffect.World = modelTransforms[mesh.ParentBone.Index] * worldMatrix;
+                    currentEffect.View = camera.viewMatrix;
+                    currentEffect.Projection = camera.projectionMatrix;
+                    currentEffect.VertexColorEnabled = true;
+                }
+                mesh.Draw();
+            }
+        }
+
     }
 }
 

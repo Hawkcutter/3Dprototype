@@ -13,7 +13,7 @@ namespace _3DPrototyp
         //Standart Variablen für Kamera, ziemlich selbsterklärend
         public Vector3 cameraPosition;
         public float   moveSpeed, rotateSpeed; //Individuelle Belegung dieser
-        public Matrix  viewMatrix, projectionMatrix;
+        public Matrix  viewMatrix, projectionMatrix; //Muss immernoch in der Draw Methode aufgerufen werden
 
         GraphicsDevice device;
 
@@ -26,7 +26,7 @@ namespace _3DPrototyp
         //Variablen für die Kamerarichtung
         int oldX, oldY;
 
-        
+        //Standart Konstruktor
         public Camera(Vector3 position, float moveSpeed, float rotateSpeed, GraphicsDevice device){
             
             this.cameraPosition = position;
@@ -39,11 +39,14 @@ namespace _3DPrototyp
             ResetMousCursor();
         }
 
+        //Update Methode der Camera.cs, muss in der Update Methode der Game1.cs aufgerufen werden
         public void update()
         {
+            //Übernommen aus dem standart generierten Game1.cs
             Input.prevKeyboard = Input.currentKeyboard;
             Input.currentKeyboard = Keyboard.GetState();
 
+            //WASD Steuerung der Kamera
             if (Input.isPressed(Keys.W))
             {
                 Vector3 v = new Vector3(0, 0, -1) * moveSpeed;
@@ -64,11 +67,11 @@ namespace _3DPrototyp
                 Vector3 v = new Vector3(1, 0, 0) * moveSpeed;
                 Move(v);
             }
-
+            //Sorgt dafür das du nicht einmal 360° oben oder nach unten drehen kannst
             pitch = MathHelper.Clamp(pitch, -1.5f, 1.5f);
-
+            //Abfangen der Maus
             MouseState mState = Mouse.GetState();
-
+            //Berechnung aus den Koordinaten der maus die Bewegung derer
             int dx = mState.X - oldX;
             yaw -= rotateSpeed * dx;
 
@@ -79,6 +82,7 @@ namespace _3DPrototyp
             UpdateMatrices();
         }
 
+        //Maus in der Fenstermitte Fangen
         private void ResetMousCursor()
         {
             int centerX = device.Viewport.Width  / 2;
@@ -90,6 +94,7 @@ namespace _3DPrototyp
 
         }
 
+        //Aktuelle Berechnung der Kamera Bewegung
         private void UpdateMatrices()
         {
             rotation = Matrix.CreateRotationX(pitch) * Matrix.CreateRotationY(yaw);
@@ -99,6 +104,7 @@ namespace _3DPrototyp
             viewMatrix = Matrix.CreateLookAt(cameraPosition, lookAt, Vector3.Up);
         }
 
+        //Verschiebung der Kamera
         private void Move(Vector3 v)
         {
             Matrix yRotation = Matrix.CreateRotationY(yaw);
