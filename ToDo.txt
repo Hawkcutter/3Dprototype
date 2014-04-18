@@ -1,10 +1,12 @@
+Was unbedingt rein muss:
+
 First-Person Sicht,
 
 Laufen,Rennen, Springen ---> Bewegung und Gravity
 
 Andere Texturen fürs Level oder VertexPositionColor
 
-Level ---> KastenForm, Aufbau aus .bmp, besteht aus Blöcken, verschiedene Höhen, Zielpunkt, Umrahmt von Mauer
+Level ---> KastenForm, Aufbau aus .bmp, besteht aus Blöcken, verschiedene Höhen, Zielpunkt, Map Umrahmt von Mauer
 
 1.Milestone
 
@@ -15,7 +17,7 @@ Gegebenenfalls Leben und Lebensanzeige
 
 Tod: "Sie sind gestorben" Taste drücken für neustart, auf Startpunkt zurücksetzen
 
-extra
+extras:
 
 Menü
 
