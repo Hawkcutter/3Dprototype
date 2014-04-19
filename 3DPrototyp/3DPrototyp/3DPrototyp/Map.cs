@@ -10,10 +10,13 @@ namespace _3DPrototyp
     class Map
     {
 
-        //erstellen und erzeugen der Map
+        //erstellen und erzeugen der Map, behandeln von Kolisionen mit der map
         //der MapVertexBuffer enthält ansich alle notwendigen Daten um die Map zu erzeugen daher der return dessen
         //Texturen werden hier nicht gebraucht, die Texturkoordinaten werden zwar zugewiesen, aber erst im Draw() angewendet
-
+        public enum CollisionType { None, Building, Boundary, Target }
+        public BoundingBox[] buildingBoundingBoxes;
+        public BoundingBox completeCityBox;
+        int[] buildingHeights = new int[] { 0, 1, 2, 3, 4, 5 };
         int[,] floorPlan;
 
         public Map() {} //Leer, da ich keinen momentan keine Daten aus der Game1.cs brauche
@@ -140,6 +143,62 @@ namespace _3DPrototyp
             mapVertexBuffer.SetData<VertexPositionNormalTexture>(verticesList.ToArray());
 
             return mapVertexBuffer;
+        }
+
+        public void SetUpBoundingBoxes()
+        {
+            int mapWidth = floorPlan.GetLength(0);
+            int mapLength = floorPlan.GetLength(1);
+
+
+            List<BoundingBox> bbList = new List<BoundingBox>(); for (int x = 0; x < mapWidth; x++)
+            {
+                for (int z = 0; z < mapLength; z++)
+                {
+                    int buildingType = floorPlan[x, z];
+                    if (buildingType != 0)
+                    {
+                        int buildingHeight = buildingHeights[buildingType];
+                        Vector3[] buildingPoints = new Vector3[2];
+                        buildingPoints[0] = new Vector3(x, 0, -z);
+                        buildingPoints[1] = new Vector3(x + 1, buildingHeight, -z - 1);
+                        BoundingBox buildingBox = BoundingBox.CreateFromPoints(buildingPoints);
+                        bbList.Add(buildingBox);
+                    }
+                }
+            }
+            buildingBoundingBoxes = bbList.ToArray();
+
+            Vector3[] boundaryPoints = new Vector3[2];
+            boundaryPoints[0] = new Vector3(0, 0, 0);
+            boundaryPoints[1] = new Vector3(mapWidth, 20, -mapLength);
+            completeCityBox = BoundingBox.CreateFromPoints(boundaryPoints);
+        }
+
+        public CollisionType CheckCollision(BoundingSphere sphere)
+        {
+            for (int i = 0; i < buildingBoundingBoxes.Length; i++)
+                if (buildingBoundingBoxes[i].Contains(sphere) != ContainmentType.Disjoint)
+                    return CollisionType.Building;
+
+            if (completeCityBox.Contains(sphere) != ContainmentType.Contains)
+                return CollisionType.Boundary;
+
+            return CollisionType.None;
+        }
+
+        public CollisionType GetCollisionType(string Type)
+        {
+            if (Type == "Building")
+                return CollisionType.Building;
+            if (Type == "Boundary")
+                return CollisionType.Boundary;
+            if (Type == "Target")
+                return CollisionType.Target;
+            if(Type == "None")
+                return CollisionType.None;
+
+            return 0;
         }
     }
 }

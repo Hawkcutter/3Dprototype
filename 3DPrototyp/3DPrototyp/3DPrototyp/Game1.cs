@@ -20,15 +20,22 @@ namespace _3DPrototyp
         public static GameTime gameTime;
 
         GraphicsDevice device;
+
+        //Speichert ansich die Map
         VertexBuffer mapVertexBuffer;
 
         BasicEffect effect;
 
         Texture2D mapTexture;
         Model model;
+        //Model bewegung test
+        Vector3 modelPosition = new Vector3(2, 3, -5);
+        bool forward = true;
 
+        //verwalten Camera Bewegung und Map Erstellung
         Camera camera;
         Map map;
+
 
 
         public Game1()
@@ -53,8 +60,6 @@ namespace _3DPrototyp
             //graphics.PreferredBackBufferHeight = 600;
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();
-
-
             effect = new BasicEffect(GraphicsDevice);
 
             base.Initialize();
@@ -78,7 +83,12 @@ namespace _3DPrototyp
             map = new Map();
             map.LoadFloorPlan();        // Durch einlesen von einen Bild ersetzen
             mapVertexBuffer = map.SetUpVertices(device);     // Braucht noch Texturen
+            map.SetUpBoundingBoxes();
 
+            Console.Out.WriteLine("Steuerung: ");
+            Console.Out.WriteLine("WASD standard ");
+            Console.Out.WriteLine("Leertaste springen ");
+            Console.Out.WriteLine("Bild Hoch/Runter: Kamera hoch oder runter ");
             // TODO: use this.Content to load your game content here
         }
         private Model LoadModel(string assetName)
@@ -116,11 +126,38 @@ namespace _3DPrototyp
             if (Input.isClicked(Keys.Escape))
                 this.Exit();
 
-            camera.update();
+            camera.update(map);
+
+            BoundingSphere playerSphere = new BoundingSphere(camera.cameraPosition, 0.04f);
+            if (map.CheckCollision(playerSphere) != map.GetCollisionType("None"))
+            {
+                //xwingPosition = new Vector3(8, 1, -3);
+                //xwingRotation = Quaternion.Identity;
+                //gameSpeed /= 1.1f;
+
+                Console.Out.WriteLine("Colision detected" + map.CheckCollision(playerSphere));
+            }
+
+            //Testen und ausprobieren von Modelbewegung
+            if (modelPosition.Z >= -14f && forward)
+            {
+                modelPosition.Z -= 0.1f;
+            } else
+            {
+                forward = false;
+                modelPosition.Z += 0.1f;
+                if (modelPosition.Z >= -1f)
+                {
+                    forward = true;
+                }
+            } 
+
+            //Console.Out.WriteLine("modelPosition: " + modelPosition);
             // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -157,7 +194,7 @@ namespace _3DPrototyp
         }
         private void DrawModel()
         {
-            Matrix worldMatrix = Matrix.CreateScale(0.005f, 0.005f, 0.005f) * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(new Vector3(2, 3, -5));
+            Matrix worldMatrix = Matrix.CreateScale(0.005f, 0.005f, 0.005f) * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(modelPosition);
 
             Matrix[] modelTransforms = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(modelTransforms);
