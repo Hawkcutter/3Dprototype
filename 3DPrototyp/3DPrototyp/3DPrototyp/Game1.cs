@@ -127,7 +127,8 @@ namespace _3DPrototyp
                 this.Exit();
 
             camera.update(map);
-
+            //Kolision testen
+            /*
             BoundingSphere playerSphere = new BoundingSphere(camera.cameraPosition, 0.04f);
             if (map.CheckCollision(playerSphere) != map.GetCollisionType("None"))
             {
@@ -137,7 +138,7 @@ namespace _3DPrototyp
 
                 Console.Out.WriteLine("Colision detected" + map.CheckCollision(playerSphere));
             }
-
+            */
             //Testen und ausprobieren von Modelbewegung
             if (modelPosition.Z >= -14f && forward)
             {

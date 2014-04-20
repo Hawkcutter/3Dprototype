@@ -82,16 +82,17 @@ namespace _3DPrototyp
                 Vector3 v = new Vector3(1, 0, 0) * moveSpeed;
                 Move(v);
             }
-            if(Input.isPressed(Keys.PageUp))
+            if(Input.isPressed(Keys.PageUp)) //Testrpingen, in Kombie mit Space bis ins unendliche hoch
             {
                 Vector3 v = new Vector3(0, 1, 0) * moveSpeed;
                 Move(v);
             }
-            if (Input.isPressed(Keys.PageDown))
+            if (Input.isPressed(Keys.PageDown)) //Test bewegen der Kamera nach unten, kann man als ducken deklarieren
             {
                 Vector3 v = new Vector3(0, -1, 0) * moveSpeed;
                 Move(v);
             }
+            //Springen
             if (Input.isPressed(Keys.Space) && !jumped)
             {
                 jumped = true;
@@ -101,8 +102,11 @@ namespace _3DPrototyp
             }
             if (jumped)
                 Jump();
-
-
+            //Sprinten
+            if(Input.isPressed(Keys.LeftShift))
+                moveSpeed = 0.1f;
+            if (!Input.isPressed(Keys.LeftShift))
+                moveSpeed = 0.05f;
             //Sorgt dafür das du nicht einmal 360° oben oder nach unten drehen kannst
             //Abfangen der Maus
             MouseState mState = Mouse.GetState();
