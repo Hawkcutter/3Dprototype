@@ -37,7 +37,6 @@ namespace _3DPrototyp
         Map map;
 
 
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -143,10 +142,12 @@ namespace _3DPrototyp
             if (modelPosition.Z >= -14f && forward)
             {
                 modelPosition.Z -= 0.1f;
+                modelPosition.X -= 0.1f;
             } else
             {
                 forward = false;
                 modelPosition.Z += 0.1f;
+                modelPosition.Y += 0.1f;
                 if (modelPosition.Z >= -1f)
                 {
                     forward = true;
@@ -182,7 +183,12 @@ namespace _3DPrototyp
             effect.Projection = camera.projectionMatrix;
             effect.Texture = mapTexture;
             effect.World = Matrix.Identity;
-
+            /*
+            RasterizerState rs = new RasterizerState();
+            rs.FillMode = FillMode.WireFrame;
+            GraphicsDevice.RasterizerState = rs;  
+             */
+            //effect.EnableDefaultLighting();
             //Das muss nicht geändert werden!
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
