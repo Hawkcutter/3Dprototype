@@ -97,7 +97,7 @@ namespace _3DPrototyp
             {
                 jumped = true;
                 fallSpeed = 0.07f;
-                Console.Out.WriteLine(jumped);
+                //Console.Out.WriteLine(jumped);
                 Jump();
             }
             if (jumped)
@@ -159,8 +159,8 @@ namespace _3DPrototyp
                 colisions++;
                 jumped = false;
                 fallSpeed = 0;
-                Console.Out.WriteLine("Cannot move in that direction, there is something in the Way!"+ colisions);
-                Console.Out.WriteLine("jumped = " + jumped);
+                //Console.Out.WriteLine("Cannot move in that direction, there is something in the Way!"+ colisions);
+                //Console.Out.WriteLine("jumped = " + jumped);
             }
         }
 
