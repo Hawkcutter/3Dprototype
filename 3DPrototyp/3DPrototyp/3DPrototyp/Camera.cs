@@ -64,6 +64,8 @@ namespace _3DPrototyp
             Input.currentKeyboard = Keyboard.GetState();
 
             playerSphere = new BoundingSphere(cameraPosition, 0.04f);
+
+            Input.goalDistance = Input.calculateDistance(playerSphere.Center, Input.goalPosition);
             
 
             if (CheckGoal(playerSphere))

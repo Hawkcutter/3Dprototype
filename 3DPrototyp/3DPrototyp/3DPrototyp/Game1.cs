@@ -43,6 +43,10 @@ namespace _3DPrototyp
         Camera camera;
         Map map;
 
+        bool showDistance = false;
+
+        SpriteFont font;
+
 
         public Game1()
         {
@@ -69,6 +73,8 @@ namespace _3DPrototyp
 
         protected override void LoadContent()
         {
+
+            font = Content.Load<SpriteFont>("Font1");
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -166,12 +172,17 @@ namespace _3DPrototyp
             // TODO: Add your drawing code here
             DrawMap();
             DrawModel();
-            if (reachedGoal)
-            {
-                spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
-                spriteBatch.Draw(endingTexture, goalTextPosition, Color.White);
-                spriteBatch.End();
-            }
+
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+
+            if (reachedGoal)                
+                spriteBatch.Draw(endingTexture, goalTextPosition, Color.White);  
+            
+            if (showDistance)
+                spriteBatch.DrawString(font, "Distance to Goal: " + Input.goalDistance, new Vector2(20, 20), Color.Black);
+            
+
+            spriteBatch.End();
             
 
             base.Draw(gameTime);
@@ -220,8 +231,6 @@ namespace _3DPrototyp
                 mesh.Draw();
             }
         }
-        
-
     }
 }
 
