@@ -16,10 +16,25 @@ public static class Input
 {
     public static KeyboardState currentKeyboard;
     public static KeyboardState prevKeyboard;
+    public static Vector3 goalPosition = new Vector3(15.5f, 1, -8.5f);
 
     public static bool isClicked(Keys key)
     {
-        return currentKeyboard.IsKeyDown(key) && prevKeyboard.IsKeyUp(key) ? true : false;
+
+       // return currentKeyboard.IsKeyDown(key) && prevKeyboard.IsKeyUp(key) ? true : false;
+
+        if (prevKeyboard.IsKeyUp(key) )
+        {
+            Console.Out.WriteLine("step1");
+            if (currentKeyboard.IsKeyDown(key))
+            {
+                Console.Out.WriteLine("step2");
+                Console.Out.WriteLine("True");
+                return true;
+            }
+           
+        }
+        return false;
     }
 
     public static bool isPressed(Keys key)

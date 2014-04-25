@@ -26,11 +26,18 @@ namespace _3DPrototyp
 
         BasicEffect effect;
 
+        Texture2D endingTexture;
+        public static bool reachedGoal = false;
+        Vector2 goalTextPosition = new Vector2(80,40);
+
+        Vector3 goalPosition = new Vector3(19.5f, 6, -7.5f);
+        
+
         Texture2D mapTexture;
         Model model;
         //Model bewegung test
-        Vector3 modelPosition = new Vector3(2, 3, -5);
-        bool forward = true;
+        Vector3 modelPosition = new Vector3(20, 5, -5);
+        bool forward = false;
 
         //verwalten Camera Bewegung und Map Erstellung
         Camera camera;
@@ -46,15 +53,10 @@ namespace _3DPrototyp
             Content.RootDirectory = "Content";
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
+
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+
             //graphics.PreferredBackBufferWidth = 800;
             //graphics.PreferredBackBufferHeight = 600;
             graphics.IsFullScreen = false;
@@ -64,16 +66,14 @@ namespace _3DPrototyp
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
+
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             mapTexture = Content.Load<Texture2D>("texturemap");
+            endingTexture = Content.Load<Texture2D>("theEnd");
             model = LoadModel("xwing");
 
             device = graphics.GraphicsDevice;
@@ -83,12 +83,13 @@ namespace _3DPrototyp
             map.LoadFloorPlan();        // Durch einlesen von einen Bild ersetzen
             mapVertexBuffer = map.SetUpVertices(device);     // Braucht noch Texturen
             map.SetUpBoundingBoxes();
+            map.setGoal();
 
             Console.Out.WriteLine("Steuerung: ");
             Console.Out.WriteLine("WASD standard ");
             Console.Out.WriteLine("Leertaste springen ");
             Console.Out.WriteLine("Bild Hoch/Runter: Kamera hoch oder runter ");
-            // TODO: use this.Content to load your game content here
+
         }
         private Model LoadModel(string assetName)
         {
@@ -101,28 +102,21 @@ namespace _3DPrototyp
         }
 
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// all content.
-        /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+
         }
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
+            if (camera.reachedGoal)
+                reachedGoal = true;
 
             Input.prevKeyboard = Input.currentKeyboard;
             Input.currentKeyboard = Keyboard.GetState();
 
-            if (Input.isClicked(Keys.Escape))
+            if (Input.isPressed(Keys.Escape))
                 this.Exit();
 
             camera.update(map);
@@ -139,7 +133,7 @@ namespace _3DPrototyp
             }
             */
             //Testen und ausprobieren von Modelbewegung
-            if (modelPosition.Z >= -14f && forward)
+            /*if (modelPosition.Z >= -14f && forward)
             {
                 modelPosition.Z -= 0.1f;
                 modelPosition.X -= 0.1f;
@@ -154,24 +148,32 @@ namespace _3DPrototyp
                 }
             } 
 
-            //Console.Out.WriteLine("modelPosition: " + modelPosition);
+            //Console.Out.WriteLine("modelPosition: " + modelPosition);*/
             // TODO: Add your update logic here
+
+            
 
             base.Update(gameTime);
         }
 
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+
         protected override void Draw(GameTime gameTime)
         {
             graphics.GraphicsDevice.Clear(Color.Black);
+            
 
             // TODO: Add your drawing code here
             DrawMap();
             DrawModel();
+            if (reachedGoal)
+            {
+                spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+                spriteBatch.Draw(endingTexture, goalTextPosition, Color.White);
+                spriteBatch.End();
+            }
+            
+
             base.Draw(gameTime);
         }
 
@@ -201,7 +203,7 @@ namespace _3DPrototyp
         }
         private void DrawModel()
         {
-            Matrix worldMatrix = Matrix.CreateScale(0.005f, 0.005f, 0.005f) * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(modelPosition);
+            Matrix worldMatrix = Matrix.CreateScale(0.005f, 0.005f, 0.005f) * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(Input.goalPosition);
 
             Matrix[] modelTransforms = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(modelTransforms);
@@ -218,6 +220,7 @@ namespace _3DPrototyp
                 mesh.Draw();
             }
         }
+        
 
     }
 }

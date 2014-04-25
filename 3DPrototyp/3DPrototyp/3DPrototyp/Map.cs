@@ -16,10 +16,12 @@ namespace _3DPrototyp
         public enum CollisionType { None, Building, Boundary, Target }
         public BoundingBox[] buildingBoundingBoxes;
         public BoundingBox completeCityBox;
+        public BoundingBox goalBox;
+
         int[] buildingHeights = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         int[,] floorPlan;
 
-        public Map() {} //Leer, da ich keinen momentan keine Daten aus der Game1.cs brauche
+        public Map() {} //Leer, da ich momentan keine Daten aus der Game1.cs brauche
 
         public void LoadFloorPlan() 
         {
@@ -31,12 +33,24 @@ namespace _3DPrototyp
                  {3,0,0,1,1,0,0,0,1,0,0,0,1,0,3},
                  {3,0,0,0,1,1,0,1,1,0,0,0,0,0,3},
                  {3,0,0,0,0,0,0,0,0,0,0,1,0,0,3},
-                 {3,0,0,0,0,2,2,2,2,2,0,0,0,0,3},
+                 {3,0,2,2,2,2,2,2,2,2,0,0,0,0,3},
                  {3,0,0,0,0,2,3,3,3,2,0,0,0,0,3},
-                 {3,0,0,0,0,2,3,4,3,2,0,0,0,0,3},
+                 {3,2,2,2,0,2,3,4,3,2,0,0,0,0,3},
                  {3,0,0,0,0,2,3,3,3,2,0,0,0,0,3},
-                 {3,0,1,1,0,2,2,1,2,2,0,0,0,0,3},
+                 {3,0,2,2,0,2,2,1,2,2,0,0,0,0,3},
                  {3,0,1,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,5,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+                 {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
                  {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
                  {3,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
                  {3,0,0,0,0,1,0,0,0,0,0,0,0,0,3},
@@ -53,7 +67,7 @@ namespace _3DPrototyp
         {
             VertexBuffer mapVertexBuffer;
             
-            float imagesInTexture = 1 + 10;              //Ändern wen andere Textur gewählt wird, "+ Zahl" ist die Anzahl der Texturen -1
+            float imagesInTexture = 1 + 10;              //Ändern wenn andere Textur gewählt wird, "+ Zahl" ist die Anzahl der Texturen -1
 
             int mapWidth = floorPlan.GetLength(0);
             int mapLength = floorPlan.GetLength(1);
@@ -95,7 +109,7 @@ namespace _3DPrototyp
                     verticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, floorPlan[x, z], -z), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 1)));
 
 
-                    //if (currentbuilding != 0) // genutzt wen currentBuilding wieder einen nutzen hat
+                    //if (currentbuilding != 0) // genutzt wenn currentBuilding wieder einen nutzen hat
                     if (floorPlan[x,z] > 0) 
                     {
 
@@ -144,6 +158,17 @@ namespace _3DPrototyp
 
             return mapVertexBuffer;
         }
+        
+        public void setGoal()
+        {
+            Vector3 goalPosition = Input.goalPosition;
+            Vector3[] goalPoints = new Vector3[2];
+            goalPoints[0] = new Vector3(goalPosition.X + 0.5f, goalPosition.Y + 0.5f, goalPosition.Z + 0.5f);
+            goalPoints[1] = new Vector3(goalPosition.X - 0.5f, goalPosition.Y - 0.5f, goalPosition.Z - 0.5f);
+
+            goalBox = BoundingBox.CreateFromPoints(goalPoints);
+            
+        }
 
         public void SetUpBoundingBoxes()
         {
@@ -184,6 +209,12 @@ namespace _3DPrototyp
             if (completeCityBox.Contains(sphere) != ContainmentType.Contains)
                 return CollisionType.Boundary;
 
+            if (goalBox.Contains(sphere) == ContainmentType.Contains)
+            {
+                return CollisionType.Target;
+                
+            }
+
             return CollisionType.None;
         }
 
@@ -195,7 +226,7 @@ namespace _3DPrototyp
                 return CollisionType.Boundary;
             if (Type == "Target")
                 return CollisionType.Target;
-            if(Type == "None")
+            if (Type == "None")
                 return CollisionType.None;
 
             return 0;

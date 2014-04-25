@@ -29,15 +29,21 @@ namespace _3DPrototyp
         //Variablen fürs Springen
         bool jumped = false;
         float  fallSpeed = 0;
+        float jumpheight = 0.7f;
 
         Map map;
         BoundingSphere playerSphere;
 
+        public bool reachedGoal;
+        
+        
+        
         //Debugging
         int colisions = 0;
 
         //Standart Konstruktor
         public Camera(Vector3 position, float moveSpeed, float rotateSpeed, GraphicsDevice device){
+            
             
             this.cameraPosition = position;
             this.moveSpeed      = moveSpeed;
@@ -56,7 +62,14 @@ namespace _3DPrototyp
             //Übernommen aus dem standart generierten Game1.cs
             Input.prevKeyboard = Input.currentKeyboard;
             Input.currentKeyboard = Keyboard.GetState();
+
             playerSphere = new BoundingSphere(cameraPosition, 0.04f);
+            
+
+            if (CheckGoal(playerSphere))
+                reachedGoal = true;
+            
+            
             if (!jumped)
             {
                 gravity();
@@ -82,7 +95,7 @@ namespace _3DPrototyp
                 Vector3 v = new Vector3(1, 0, 0) * moveSpeed;
                 Move(v);
             }
-            if(Input.isPressed(Keys.PageUp)) //Testrpingen, in Kombie mit Space bis ins unendliche hoch
+            if(Input.isPressed(Keys.PageUp)) //Testspringen, in Kombie mit Space bis ins unendliche hoch
             {
                 Vector3 v = new Vector3(0, 1, 0) * moveSpeed;
                 Move(v);
@@ -102,11 +115,13 @@ namespace _3DPrototyp
             }
             if (jumped)
                 Jump();
+
             //Sprinten
             if(Input.isPressed(Keys.LeftShift))
                 moveSpeed = 0.1f;
             if (!Input.isPressed(Keys.LeftShift))
                 moveSpeed = 0.05f;
+
             //Sorgt dafür das du nicht einmal 360° oben oder nach unten drehen kannst
             //Abfangen der Maus
             MouseState mState = Mouse.GetState();
@@ -190,6 +205,20 @@ namespace _3DPrototyp
             gravity();
         }
 
-
+        public bool CheckGoal(BoundingSphere player)
+        {
+            //if (map.CheckCollision(player) == map.GetCollisionType("Target"))
+            if (map.CheckCollision(new BoundingSphere(new Vector3(player.Center.X, player.Center.Y - 0.5f, player.Center.Z),0.04f)) == map.GetCollisionType("Target")  ||
+                map.CheckCollision(new BoundingSphere(new Vector3(player.Center.X + 0.5f, player.Center.Y, player.Center.Z), 0.04f)) == map.GetCollisionType("Target") ||
+                map.CheckCollision(new BoundingSphere(new Vector3(player.Center.X - 0.5f, player.Center.Y, player.Center.Z), 0.04f)) == map.GetCollisionType("Target") ||
+                map.CheckCollision(new BoundingSphere(new Vector3(player.Center.X, player.Center.Y, player.Center.Z + 0.5f), 0.04f)) == map.GetCollisionType("Target") ||
+                map.CheckCollision(new BoundingSphere(new Vector3(player.Center.X, player.Center.Y, player.Center.Z - 0.5f), 0.04f)) == map.GetCollisionType("Target"))
+            {
+                
+                return true;
+            }
+            
+            return false;
+        }
     }
 }
